@@ -3397,7 +3397,7 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
 {
 	struct vm_area_struct *vma = vmf->vma;
 
-	melokc_pr("start do_wp_page\n");	
+	//melokc_pr("start do_wp_page\n");	
 	if (userfaultfd_pte_wp(vma, *vmf->pte)) {
 		pte_unmap_unlock(vmf->pte, vmf->ptl);
 		if (vmf->flags & FAULT_FLAG_SPECULATIVE)
