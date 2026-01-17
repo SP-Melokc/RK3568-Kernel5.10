@@ -111,6 +111,7 @@
 #include <trace/events/initcall.h>
 
 #include <kunit/test.h>
+#include <linux/melokc_log.h>
 
 static int kernel_init(void *);
 
