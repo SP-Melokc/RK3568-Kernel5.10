@@ -498,6 +498,11 @@ config HISI_HIKEY_USB
 	  switching between the dual-role USB-C port and the USB-A host ports
 	  using only one USB controller.
 
+config DUMP_STACK
+	tristate "test dump stack by melokc"
+	default m
+	help
+	  Use this module to dump stack per 20secs.
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
