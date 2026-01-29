@@ -500,9 +500,10 @@ config HISI_HIKEY_USB
 
 config DUMP_STACK
 	tristate "test dump stack by melokc"
-	default m
+	default y
 	help
 	  Use this module to dump stack per 20secs.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
