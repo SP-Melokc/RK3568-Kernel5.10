@@ -500,7 +500,7 @@ config HISI_HIKEY_USB
 
 config DUMP_STACK
 	tristate "test dump stack by melokc"
-	default y
+	default n
 	help
 	  Use this module to dump stack per 20secs.
 
