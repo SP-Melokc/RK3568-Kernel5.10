@@ -91,8 +91,7 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/pagefault.h>
 
-#define melokc_pr(fmt, ...) \
-    pr_err("[Melokc][%s]: " fmt, __func__, ##__VA_ARGS__)
+#include <linux/melokc_log.h>
 
 #if defined(LAST_CPUPID_NOT_IN_PAGE_FLAGS) && !defined(CONFIG_COMPILE_TEST)
 #warning Unfortunate NUMA and NUMA Balancing config, growing page-frame for last_cpupid.
@@ -3145,11 +3144,13 @@ static vm_fault_t wp_page_copy(struct vm_fault *vmf)
 		goto out;
 
 	if (is_zero_pfn(pte_pfn(vmf->orig_pte))) {
+		melokc_debug("use zerod page\n");
 		new_page = alloc_zeroed_user_highpage_movable(vma,
 							      vmf->address);
 		if (!new_page)
 			goto out;
 	} else {
+		melokc_debug("not zerod page\n");
 		new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma,
 				vmf->address);
 		if (!new_page)
@@ -3874,6 +3875,7 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
 	vm_fault_t ret = 0;
 	pte_t entry;
 
+
 	/* File mapping without ->vm_ops ? */
 	if (vmf->vma_flags & VM_SHARED)
 		return VM_FAULT_SIGBUS;
@@ -3957,6 +3959,8 @@ skip_pmd_checks:
 		ret = VM_FAULT_RETRY;
 		goto release;
 	}
+
+	melokc_debug("get ptl!\n");
 
 	if (!pte_none(*vmf->pte)) {
 		update_mmu_cache(vma, vmf->address, vmf->pte);
@@ -5265,6 +5269,8 @@ vm_fault_t handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
 
 	/* do counter updates before entering really critical section. */
 	check_sync_rss_stat(current);
+
+	melokc_debug("Start doing faultin\n");
 
 	if (!arch_vma_access_permitted(vma, flags & FAULT_FLAG_WRITE,
 					    flags & FAULT_FLAG_INSTRUCTION,
