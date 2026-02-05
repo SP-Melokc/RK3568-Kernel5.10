@@ -49,11 +49,12 @@
 &reserved_memory {
 	ramoops: ramoops@110000 {
 		compatible = "ramoops";
-		reg = <0x0 0x110000 0x0 0xf0000>;
+		reg = <0x0 0x6000000 0x0 0x400000>;
 		record-size = <0x20000>;
-		console-size = <0x80000>;
-		ftrace-size = <0x00000>;
-		pmsg-size = <0x50000>;
+		console-size = <0x200000>;
+		ftrace-size = <0x100000>;
+		pmsg-size = <0x80000>;
+		no-map;
 	};
 };
 
