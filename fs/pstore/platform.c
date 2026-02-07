@@ -33,6 +33,7 @@
 #include <linux/jiffies.h>
 #include <linux/workqueue.h>
 
+#include <linux/melokc_log.h>
 #include "internal.h"
 
 /*
@@ -395,6 +396,9 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 
 	why = kmsg_dump_reason_str(reason);
 
+	if (why)
+		melokc_pr("kmsg dump reason is %s\n",why);
+
 	if (down_trylock(&psinfo->buf_lock)) {
 		/* Failed to acquire lock: give up if we cannot wait. */
 		if (pstore_cannot_wait(reason)) {
@@ -409,6 +413,8 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 	}
 
 	oopscount++;
+
+	melokc_pr("kmsg_bytes = %lu\n",kmsg_bytes);
 	while (total < kmsg_bytes) {
 		char *dst;
 		size_t dst_size;
@@ -435,6 +441,7 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 		/* Write dump header. */
 		header_size = snprintf(dst, dst_size, "%s#%d Part%u\n", why,
 				 oopscount, part);
+		melokc_pr("header_size = %d\n",header_size);
 		dst_size -= header_size;
 
 		/* Write dump contents. */

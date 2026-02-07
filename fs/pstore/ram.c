@@ -23,6 +23,7 @@
 #include <linux/of_address.h>
 #include <linux/of_reserved_mem.h>
 #include "internal.h"
+#include "linux/melokc_log.h"
 
 #if IS_REACHABLE(CONFIG_ROCKCHIP_MINIDUMP)
 #include <soc/rockchip/rk_minidump.h>
@@ -544,6 +545,8 @@ static int ramoops_init_przs(const char *name,
 	size_t zone_sz;
 	struct persistent_ram_zone **prz_ar;
 
+	melokc_pr("cnt = %u\n",*cnt);
+
 	/* Allocate nothing for 0 mem_sz or 0 record_size. */
 	if (mem_sz == 0 || record_size == 0) {
 		*cnt = 0;
@@ -833,12 +836,13 @@ static int ramoops_probe(struct platform_device *pdev)
 	int err = -EINVAL;
 	int i = 0;
 
+	melokc_pr("ramoops_probe here\n");
 	/*
 	 * Only a single ramoops area allowed at a time, so fail extra
 	 * probes.
 	 */
 	if (cxt->max_dump_cnt) {
-		pr_err("already initialized\n");
+		melokc_pr("already initialized\n");
 		goto fail_out;
 	}
 
@@ -846,6 +850,7 @@ static int ramoops_probe(struct platform_device *pdev)
 		pdata = &pdata_local;
 		memset(pdata, 0, sizeof(*pdata));
 
+		melokc_pr("parse from fdt\n");
 		err = ramoops_parse_dt(pdev, pdata);
 		if (err < 0)
 			goto fail_out;
@@ -895,7 +900,9 @@ static int ramoops_probe(struct platform_device *pdev)
 	cxt->ecc_info = pdata->ecc_info;
 #ifdef CONFIG_PSTORE_BOOT_LOG
 	cxt->boot_log_size = pdata->boot_log_size;
+	melokc_pr("boot_log_size = %lu\n",pdata->boot_log_size);
 	cxt->max_boot_log_cnt = pdata->max_boot_log_cnt;
+	melokc_pr("max_boot_log_cnt = %lu\n",pdata->max_boot_log_cnt);
 #endif
 
 	paddr = cxt->phys_addr;
@@ -914,7 +921,7 @@ static int ramoops_probe(struct platform_device *pdev)
 		goto fail_clear;
 	if (cxt->boot_log_size > 0)
 		for (i = 0; i < cxt->max_boot_log_cnt; i++)
-			pr_info("boot-log-%d\t0x%zx@%pa\n", i, cxt->boot_przs[i]->size, &cxt->boot_przs[i]->paddr);
+			melokc_pr("boot-log-%d\t0x%zx@%pa\n", i, cxt->boot_przs[i]->size, &cxt->boot_przs[i]->paddr);
 #endif
 
 	err = ramoops_init_przs("dmesg", dev, cxt, &cxt->dprzs, &paddr,
@@ -924,7 +931,7 @@ static int ramoops_probe(struct platform_device *pdev)
 		goto fail_out;
 	if (cxt->record_size > 0)
 		for (i = 0; i < cxt->max_dump_cnt; i++)
-			pr_info("dmesg-%d\t0x%zx@%pa\n", i, cxt->dprzs[i]->size, &cxt->dprzs[i]->paddr);
+			melokc_pr("dmesg-%d\t0x%zx@%pa\n", i, cxt->dprzs[i]->size, &cxt->dprzs[i]->paddr);
 
 	err = ramoops_init_prz("console", dev, cxt, &cxt->cprz, &paddr,
 			       cxt->console_size, 0);
@@ -1080,7 +1087,7 @@ static void __init ramoops_register_dummy(void)
 	if (!mem_size)
 		return;
 
-	pr_info("using module parameters\n");
+	melokc_pr("using module parameters\n");
 
 	memset(&pdata, 0, sizeof(pdata));
 	pdata.mem_size = mem_size;
@@ -1101,6 +1108,8 @@ static void __init ramoops_register_dummy(void)
 	else
 		pdata.max_reason = KMSG_DUMP_OOPS;
 	pdata.flags = RAMOOPS_FLAG_FTRACE_PER_CPU;
+
+	melokc_pr("pdata.max_reason = %d\n",pdata.max_reason);
 
 	/*
 	 * For backwards compatibility ramoops.ecc=1 means 16 bytes ECC
