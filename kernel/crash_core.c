@@ -7,6 +7,7 @@
 #include <linux/crash_core.h>
 #include <linux/utsname.h>
 #include <linux/vmalloc.h>
+#include <linux/melokc_log.h>
 
 #include <asm/page.h>
 #include <asm/sections.h>
@@ -191,6 +192,8 @@ static __init char *get_last_crashkernel(char *cmdline,
 {
 	char *p = cmdline, *ck_cmdline = NULL;
 
+	melokc_pr("get last crashkernel\n");
+
 	/* find crashkernel and use the last one if there are more */
 	p = strstr(p, name);
 	while (p) {
@@ -337,6 +340,7 @@ void crash_update_vmcoreinfo_safecopy(void *ptr)
 
 void crash_save_vmcoreinfo(void)
 {
+	melokc_pr("save vmcoreinfo\n");
 	if (!vmcoreinfo_note)
 		return;
 
@@ -427,6 +431,8 @@ static void add_build_id_vmcoreinfo(void)
 
 static int __init crash_save_vmcoreinfo_init(void)
 {
+	melokc_pr("vmcoreinfo init\n");
+	
 	vmcoreinfo_data = (unsigned char *)get_zeroed_page(GFP_KERNEL);
 	if (!vmcoreinfo_data) {
 		pr_warn("Memory allocation for vmcoreinfo_data failed\n");
